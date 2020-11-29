@@ -4,12 +4,12 @@ import spock.lang.Specification
 
 class Day1Spec extends Specification {
 
-    Object systemUnderTest
+    Day1 systemUnderTest
 
     void setup() {
-        systemUnderTest = new Object()
+        systemUnderTest = new Day1()
     }
-    
+
     void "change me"() {
         when:
         def result = systemUnderTest
