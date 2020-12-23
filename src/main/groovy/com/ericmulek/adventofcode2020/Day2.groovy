@@ -49,6 +49,7 @@ interface PasswordValidator {
 
     boolean validate(Password password)
 }
+
 class TobogganPasswordValidator implements PasswordValidator {
 
     @Override
