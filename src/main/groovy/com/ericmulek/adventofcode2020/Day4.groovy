@@ -2,7 +2,11 @@ package com.ericmulek.adventofcode2020
 
 import org.hibernate.validator.constraints.Range
 
-import javax.validation.*
+import javax.validation.Constraint
+import javax.validation.ConstraintValidator
+import javax.validation.ConstraintValidatorContext
+import javax.validation.Validator
+import javax.validation.constraints.NotNull
 import javax.validation.constraints.Pattern
 import java.lang.annotation.*
 
@@ -12,29 +16,32 @@ class Day4 {
 
     Integer countValidPassports(List<Passport> passports) {
         passports.count {
-            try {
-                passportValidator.validate(it)
-            } catch (ConstraintViolationException cve) {
-                false
-            }
+            passportValidator.validate(it)
         }
     }
 }
 
 class Passport {
 
+    @NotNull
     @Range(min = 1920l, max = 2002l)
     Integer byr //(Birth Year)
+    @NotNull
     @Range(min = 2010l, max = 2020l)
     Integer iyr //(Issue Year)
+    @NotNull
     @Range(min = 2020l, max = 2030l)
     Integer eyr //(Expiration Year)
+    @NotNull
     @ValidHeight
     String hgt //(Height)
+    @NotNull
     @Pattern(regexp = '#{1}[a-f0-9]{6}')
     String hcl //(Hair Color)
+    @NotNull
     @Pattern(regexp = 'amb|blu|brn|gry|grn|hzl|oth')
     String ecl //(Eye Color)
+    @NotNull
     @Pattern(regexp = '\\d{9}')
     String pid //(Passport ID)
     String cid //(Country ID)
@@ -68,9 +75,46 @@ class RefinedPassportValidator implements PassportValidator {
 
     @Override
     boolean validate(Passport passport) {
-        validator.validate(passport).tap {
+        validator.validate(passport).each {
+            println("${it.propertyPath}, ${it.invalidValue} :${it.message}")
+        }.tap {
             it
         }.isEmpty() //should be no validation errors
+    }
+}
+
+@Documented
+@Constraint(validatedBy = HeightValidator)
+@Target([ElementType.METHOD, ElementType.FIELD])
+@Retention(RetentionPolicy.RUNTIME)
+@interface ValidHeight {
+    String message() default "Invalid Height"
+
+    Class[] groups() default []
+
+    Class[] payload() default []
+}
+
+class HeightValidator implements ConstraintValidator<ValidHeight, String> {
+
+    static final String METRIC_UNIT_OF_MEASURE = 'cm'
+    static final String IMPERIAL_UNIT_OF_MEASURE = 'in'
+
+    @Override
+    boolean isValid(String value, ConstraintValidatorContext context) {
+
+        //could be better, use a enum or map to hold properties. Would like some DI but it just base java validation, not spring.
+        if (value?.endsWith(METRIC_UNIT_OF_MEASURE)) {
+            value.replace(METRIC_UNIT_OF_MEASURE, '').toInteger().with {
+                it >= 150 && it <= 193
+            }
+        } else if (value?.endsWith(IMPERIAL_UNIT_OF_MEASURE)) {
+            value.replace(IMPERIAL_UNIT_OF_MEASURE, '').toInteger().with {
+                it >= 59 && it <= 76
+            }
+        } else {
+            false
+        }
     }
 }
 
@@ -106,46 +150,15 @@ class PassportDataLoader {
             }
         }.with {
             new Passport(
-                    byr:it.byr as Integer,
-                    iyr:it.iyr as Integer,
-                    eyr:it.eyr as Integer,
-                    hgt:it.hgt,
-                    hcl:it.hcl,
-                    ecl:it.ecl,
-                    pid:it.pid,
-                    cid:it.cid,
+                    byr: it.byr as Integer,
+                    iyr: it.iyr as Integer,
+                    eyr: it.eyr as Integer,
+                    hgt: it.hgt,
+                    hcl: it.hcl,
+                    ecl: it.ecl,
+                    pid: it.pid,
+                    cid: it.cid,
             )
-        }
-    }
-}
-
-@Documented
-@Constraint(validatedBy = HeightValidator)
-@Target([ElementType.METHOD, ElementType.FIELD])
-@Retention(RetentionPolicy.RUNTIME)
-@interface ValidHeight {
-    String message() default "Invalid Height"
-    Class[] groups() default []
-    Class[] payload() default []
-}
-
-class HeightValidator implements ConstraintValidator<ValidHeight, String> {
-
-    @Override
-    boolean isValid(String value, ConstraintValidatorContext context) {
-        String METRIC_UNIT_OF_MEASURE = 'cm'
-        String IMPERIAL_UNIT_OF_MEASURE = 'in'
-
-        if (value?.endsWith(METRIC_UNIT_OF_MEASURE)) {
-            value.replace(METRIC_UNIT_OF_MEASURE, '').toInteger().with {
-                it >= 150 && it <= 193
-            }
-        } else if (value?.endsWith(IMPERIAL_UNIT_OF_MEASURE)) {
-            value.replace(IMPERIAL_UNIT_OF_MEASURE, '').toInteger().with {
-                it >= 59 && it <= 76
-            }
-        } else {
-            false
         }
     }
 }

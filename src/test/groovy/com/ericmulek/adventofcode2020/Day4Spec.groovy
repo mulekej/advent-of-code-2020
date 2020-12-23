@@ -28,7 +28,7 @@ class Day4Spec extends Specification {
         result == 192
     }
 
-    void "Part 2"() {
+    void "Part 2, Validate use refined rules"() {
         given:
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
@@ -38,7 +38,7 @@ class Day4Spec extends Specification {
         int result = systemUnderTest.countValidPassports(passports)
 
         then:
-        result == 192
+        result == 101
 
     }
 }
