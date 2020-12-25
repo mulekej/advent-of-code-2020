@@ -7,7 +7,7 @@ class Day8Spec extends Specification {
     Day8 systemUnderTest
 
     void setup() {
-        List<Instruction> instructionSet = new InstructionReader().read()
+        List<Instruction> instructionSet = new InstructionReader(fileName:'day8Dataset.txt').read()
         systemUnderTest = new Day8(instructionSet:instructionSet)
     }
 
@@ -16,6 +16,6 @@ class Day8Spec extends Specification {
         int result = systemUnderTest.valueBeforeLoop
 
         then:
-        !result
+        result == 1709
     }
 }
