@@ -18,4 +18,12 @@ class Day8Spec extends Specification {
         then:
         result == 1709
     }
+
+    void "Part 2, find bad operation"() {
+        when:
+        int result = systemUnderTest.findBadInstruction()
+
+        then:
+        result == 1976
+    }
 }
