@@ -22,10 +22,13 @@ class Day9Spec extends Specification {
     }
 
     void "Part 2"() {
+        given:
+        List<Long> temp = new Day9Loader(fileName:'day9Dataset.txt').read()
+
         when:
-        def result = systemUnderTest
+        long result = systemUnderTest.part2(temp)
 
         then:
-        !result
+        result == 4023754
     }
 }

@@ -2,10 +2,11 @@ package com.ericmulek.adventofcode2020
 
 class Day9 {
 
+    static final int MIN_CONTIGUOUS_RANGE = 2
     long preamble
 
     Long findFirstInvalidCheckDigit(List<Long> numbers) {
-        (preamble..numbers.size()-1).findAll { Long index ->
+        (preamble..numbers.size() - 1).findAll { Long index ->
             isInvalid(numbers, index)
         }.with {
             numbers[it[0]]
@@ -31,6 +32,21 @@ class Day9 {
         }.with {
             !it
         }
+    }
+
+    Long part2(List<Long> numbers) {
+        def result = 0
+        def invalidNumber = findFirstInvalidCheckDigit(numbers)
+        for (int x = 0; x < numbers.size() - MIN_CONTIGUOUS_RANGE && !result; x++) {
+            for (int y = x + MIN_CONTIGUOUS_RANGE; y < numbers.size() && !result; y++) {
+                numbers.subList(x, y).tap {
+                    if (invalidNumber == it.sum()) {
+                        result = it.min() + it.max()
+                    }
+                }
+            }
+        }
+        result
     }
 }
 
